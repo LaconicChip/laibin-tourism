@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>selftest</title>
+<style>
+  body { font: 13px/1.6 ui-monospace, Consolas, monospace; margin: 0; background: #111; color: #ddd; }
+  iframe { width: 1280px; height: 900px; border: 0; opacity: .03; position: fixed; inset: 0; pointer-events: none; }
+  pre { position: relative; z-index: 2; padding: 16px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<iframe id="stage"></iframe>
+<pre id="out">running…</pre>
+<script>
+const params = new URLSearchParams(location.search);
+const pageName = params.get('page') || 'index';
+const HOST = location.origin + location.pathname.replace('/tools/selftest.html', '/');
+
+const S = {
+  index: [
+    ['清单 24 行', d => d.querySelectorAll('.spot-row').length],
+    ['特写 4 张', d => d.querySelectorAll('.feature').length],
+    ['主题筛选 7 个', d => d.querySelectorAll('#themeBar .chip').length],
+    ['切到瑶乡', async (d, w) => {
+      d.querySelector('[data-theme="yao"]').click();
+      await w.sleep(250);
+      return d.querySelectorAll('.spot-row').length;
+    }],
+    ['地图 6 区块', d => d.querySelectorAll('.county').length],
+    ['悬停忻城', async (d, w) => {
+      d.querySelector('.county[data-county="xincheng"]').dispatchEvent(new w.MouseEvent('mouseover', { bubbles: true }));
+      await w.sleep(200);
+      return d.querySelector('#mapPanel h3').textContent;
+    }],
+    ['七月推荐', async (d, w) => {
+      d.querySelector('[data-month="7"]').click();
+      await w.sleep(200);
+      return d.querySelector('#monthDetail h3').textContent;
+    }],
+    ['味觉 12 行', d => d.querySelectorAll('.food-row').length],
+    ['所有图片已加载', d => [...d.images].every(i => i.complete && i.naturalWidth > 0)],
+    ['打开详情', async (d, w) => {
+      d.querySelector('.spot-row').click();
+      await w.sleep(500);
+      const el = d.querySelector('.drawer');
+      return {
+        open: el.classList.contains('is-open'),
+        title: el.querySelector('h2').textContent,
+        hasPhoto: !!el.querySelector('.drawer__media img'),
+        price: el.querySelector('.fact dd').textContent
+      };
+    }],
+    ['加入行程', async (d, w) => {
+      d.querySelector('[data-plan-add]').click();
+      await w.sleep(150);
+      return JSON.parse(w.localStorage.getItem('laibin.trip.v1')).spots;
+    }],
+    ['关闭抽屉', async (d, w) => {
+      d.querySelector('.drawer__close').click();
+      await w.sleep(400);
+      return d.querySelector('.drawer').classList.contains('is-open');
+    }]
+  ],
+  explore: [
+    ['初始 24', d => d.querySelector('#count').textContent],
+    ['山水筛选', async (d, w) => {
+      d.querySelector('[data-theme="shan"]').click();
+      await w.sleep(200);
+      return d.querySelector('#count').textContent;
+    }],
+    ['叠加免费', async (d, w) => {
+      d.querySelector('[data-cond="free"]').click();
+      await w.sleep(200);
+      return d.querySelector('#count').textContent;
+    }],
+    ['只看有实拍', async (d, w) => {
+      d.querySelector('#resetFilters').click();
+      await w.sleep(150);
+      d.querySelector('[data-cond="photo"]').click();
+      await w.sleep(200);
+      return d.querySelector('#count').textContent;
+    }],
+    ['搜索 瑶', async (d, w) => {
+      d.querySelector('#resetFilters').click();
+      await w.sleep(150);
+      const q = d.querySelector('#q');
+      q.value = '瑶';
+      q.dispatchEvent(new w.Event('input', { bubbles: true }));
+      await w.sleep(400);
+      return d.querySelector('#count').textContent;
+    }],
+    ['清空搜索', async (d, w) => {
+      d.querySelector('#qClear').click();
+      await w.sleep(250);
+      return d.querySelector('#count').textContent;
+    }],
+    ['按门票排序', async (d, w) => {
+      const s = d.querySelector('#sort');
+      s.value = 'price';
+      s.dispatchEvent(new w.Event('change', { bubbles: true }));
+      await w.sleep(250);
+      return [...d.querySelectorAll('.spot-row__name')].slice(0, 3).map(e => e.textContent.trim().split(' ')[0]);
+    }],
+    ['味觉 12 行', d => d.querySelectorAll('.food-row').length],
+    ['打开美食', async (d, w) => {
+      d.querySelector('.food-row').click();
+      await w.sleep(400);
+      return d.querySelector('.drawer h2').textContent;
+    }]
+  ],
+  plan: [
+    ['初始空态', d => d.querySelector('.empty-trip') ? 'empty' : 'has-data'],
+    ['自动排一条', async (d, w) => {
+      d.querySelector('#emptyAuto') ? d.querySelector('#emptyAuto').click() : d.querySelector('#autoPlan').click();
+      await w.sleep(400);
+      return {
+        cards: d.querySelectorAll('.day-card').length,
+        meta: d.querySelector('#tripMeta').textContent,
+        picks: d.querySelectorAll('#pickList input:checked').length,
+        items: d.querySelectorAll('.tl-item').length
+      };
+    }],
+    ['改 2 天', async (d, w) => {
+      d.querySelector('[data-days="2"]').click();
+      await w.sleep(250);
+      return d.querySelectorAll('.day-card').length;
+    }],
+    ['预算', d => d.querySelector('.budget-total strong').textContent],
+    ['第一天标题', d => d.querySelector('.day-card__head h3').textContent],
+    ['持久化', (d, w) => JSON.parse(w.localStorage.getItem('laibin.trip.v1'))]
+  ]
+};
+
+const frame = document.getElementById('stage');
+frame.src = HOST + pageName + '.html';
+
+frame.addEventListener('load', async () => {
+  const d = frame.contentDocument;
+  const w = frame.contentWindow;
+  w.sleep = ms => new Promise(r => setTimeout(r, ms));
+  const results = [];
+  for (const [label, fn] of (S[pageName] || [])) {
+    try { results.push({ label, value: await fn(d, w) }); }
+    catch (e) { results.push({ label, error: String((e && e.message) || e) }); }
+  }
+  document.getElementById('out').textContent = JSON.stringify({ page: pageName, results }, null, 1);
+  document.title = 'DONE';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>目的地 · 13 处的门票与时间｜来宾旅行笔记</title>
+<meta name="description" content="按主题、区县、票价与时长筛选来宾 13 处目的地，含实拍、开放时间与交通。">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<link rel="stylesheet" href="assets/css/pages.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%231A1B1C'/%3E%3Ctext x='16' y='23' font-size='17' fill='%23FBF9F4' text-anchor='middle' font-family='serif'%3E来%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要内容</a>
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="index.html" aria-label="来宾旅行笔记首页">
+      <span class="brand__name">来宾旅行笔记</span>
+      <span class="brand__sub">Laibin · Guangxi</span>
+    </a>
+    <nav class="nav__links" aria-label="主导航">
+      <a href="index.html">首页</a>
+      <a href="explore.html" aria-current="page">目的地</a>
+      <a href="explore.html#food">吃什么</a>
+      <a href="plan.html">行程</a>
+    </nav>
+    <div class="nav__actions">
+      <button class="nav__search" type="button" aria-label="跳到搜索框">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <span>搜索</span><kbd>/</kbd>
+      </button>
+      <button class="nav__toggle" type="button" aria-label="展开菜单" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <section class="page-head">
+    <div class="wrap page-head__row">
+      <div>
+        <span class="eyebrow eyebrow--tight">目的地 · 13 处</span>
+        <h1>散在六个区县，<br>按你的方式挑。</h1>
+        <p>想爬山就筛「山水」，带老人就筛「半天内」，预算紧就打开「免费」。每一条后面都写着门票和开放时间，点开能看实拍与怎么去。</p>
+      </div>
+      <div class="search-field">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <input id="q" type="search" placeholder="搜景点、标签、区县…" aria-label="搜索目的地" autocomplete="off">
+        <button class="search-field__clear" id="qClear" type="button" aria-label="清空搜索">✕</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap explore">
+    <aside class="filters" aria-label="筛选条件">
+      <div class="filter-block">
+        <div class="filter-block__label">主题</div>
+        <div class="chip-row chip-row--vertical" id="themeFilters"></div>
+      </div>
+      <div class="filter-block">
+        <div class="filter-block__label">区县</div>
+        <div class="chip-row chip-row--vertical" id="countyFilters"></div>
+      </div>
+      <div class="filter-block">
+        <div class="filter-block__label">条件</div>
+        <div class="chip-row chip-row--vertical" id="condFilters">
+          <button class="chip" type="button" data-cond="free" aria-pressed="false">只看免费</button>
+          <button class="chip" type="button" data-cond="half" aria-pressed="false">半天以内</button>
+          <button class="chip" type="button" data-cond="photo" aria-pressed="false">有实拍</button>
+          <button class="chip" type="button" data-cond="fav" aria-pressed="false">我的收藏</button>
+        </div>
+      </div>
+      <div class="filter-actions">
+        <span id="filterSummary">全部</span>
+        <button type="button" id="resetFilters">清空</button>
+      </div>
+    </aside>
+
+    <div>
+      <div class="toolbar">
+        <div class="toolbar__count"><strong id="count">0</strong>处</div>
+        <div class="toolbar__right">
+          <div class="sort">
+            <label for="sort">排序</label>
+            <select id="sort">
+              <option value="rec">推荐优先</option>
+              <option value="price">门票从低到高</option>
+              <option value="time">时长从短到长</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="spot-list" id="results"></div>
+      <div id="empty"></div>
+    </div>
+  </div>
+
+  <section class="food-section" id="food">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow eyebrow--tight">味觉 · 12 样</span>
+          <h2>先吃哪一口</h2>
+        </div>
+        <div class="section-head__aside">
+          来宾的口味是「酸、香、糯、鲜」：红糟提酸，糯米管饱，油茶醒神。点开看它在哪儿吃、大概多少钱。
+        </div>
+      </div>
+      <div class="chip-row" id="foodFilters" style="margin-bottom:8px"></div>
+      <div class="food-list" id="foodList"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div>
+        <h3>把桂中，慢慢走完。</h3>
+        <p>一份个人整理的旅行笔记，不是官方指南。信息会过时，出发前请再确认一次。</p>
+      </div>
+      <div class="footer-col">
+        <h4>逛</h4>
+        <ul>
+          <li><a href="index.html">首页</a></li>
+          <li><a href="explore.html#food">吃什么</a></li>
+          <li><a href="plan.html">行程</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>区县</h4>
+        <ul>
+          <li><a href="explore.html?county=jinxiu">金秀 · 世界瑶都</a></li>
+          <li><a href="explore.html?county=xincheng">忻城 · 土司故地</a></li>
+          <li><a href="explore.html?county=wuxuan">武宣 · 百崖峡谷</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>说明</h4>
+        <ul>
+          <li><span>票价核对于 2026-10-18</span></li>
+          <li><span>实拍版权归原作者</span></li>
+          <li><span>地图为示意，非行政边界</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>来宾旅行笔记 · 2026</span>
+      <span>非官方网站 · 信息仅供参考</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/scenes.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/explore.js"></script>
+</body>
+</html>

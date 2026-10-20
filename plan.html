@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>行程 · 按区县排一条顺路的线｜来宾旅行笔记</title>
+<meta name="description" content="选天数和节奏，勾选想去的地方，自动按区县归拢生成来宾三日行程，含门票、餐饮、住宿预算估算与打印。">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<link rel="stylesheet" href="assets/css/pages.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23B65A3C'/%3E%3Cpath d='M6 22h20L17 9l-3.4 6.4L11 12z' fill='%23FBF6EC'/%3E%3C/svg%3E">
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要内容</a>
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a class="brand" href="index.html" aria-label="来宾旅行笔记首页">
+      <span class="brand__name">来宾旅行笔记</span>
+      <span class="brand__sub">Laibin · Guangxi</span>
+    </a>
+    <nav class="nav__links" aria-label="主导航">
+      <a href="index.html">首页</a>
+      <a href="explore.html">目的地</a>
+      <a href="explore.html#food">吃什么</a>
+      <a href="plan.html" aria-current="page">行程</a>
+    </nav>
+    <div class="nav__actions">
+      <button class="nav__search" type="button" aria-label="去目的地页搜索">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.4" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <span>搜索</span><kbd>/</kbd>
+      </button>
+      <button class="nav__toggle" type="button" aria-label="展开菜单" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <section class="page-head">
+    <div class="wrap">
+      <span class="eyebrow eyebrow--tight">行程</span>
+      <h1>把你的几天，<br>排成一条顺路的线。</h1>
+      <p>来宾的景点分散在六个区县，最怕来回折返。选天数和节奏，勾几个想去的地方，它会把同方向的排在一起，顺手把吃饭和门票算给你。</p>
+    </div>
+  </section>
+
+  <div class="wrap planner">
+    <aside class="planner__side" aria-label="行程设置">
+      <div class="panel">
+        <div class="panel__label">天数 <span id="daysLabel">3 天</span></div>
+        <div class="seg" id="daysSeg" role="group" aria-label="选择天数">
+          <button type="button" data-days="1" aria-pressed="false">1 天</button>
+          <button type="button" data-days="2" aria-pressed="false">2 天</button>
+          <button type="button" data-days="3" aria-pressed="true">3 天</button>
+          <button type="button" data-days="4" aria-pressed="false">4 天</button>
+        </div>
+        <div class="panel__label" style="margin-top:16px">节奏 <span id="paceLabel">适中</span></div>
+        <div class="seg" id="paceSeg" role="group" aria-label="选择节奏">
+          <button type="button" data-pace="easy" aria-pressed="false">轻松</button>
+          <button type="button" data-pace="normal" aria-pressed="true">适中</button>
+          <button type="button" data-pace="packed" aria-pressed="false">紧凑</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel__label">想去哪儿 <span id="pickCount">0 / 24</span></div>
+        <div class="pick-list" id="pickList"></div>
+      </div>
+
+      <div class="planner__actions">
+        <button class="btn" type="button" id="autoPlan">先给我排一条</button>
+        <button class="btn btn--ghost btn--sm" type="button" id="clearPicks">清空已选</button>
+      </div>
+    </aside>
+
+    <section aria-live="polite">
+      <div class="trip-head">
+        <div>
+          <h2>你的行程</h2>
+          <p id="tripMeta">还没选点</p>
+        </div>
+        <div class="trip-head__actions">
+          <button class="btn btn--ghost btn--sm" type="button" id="printTrip">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V4h10v5" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="4" y="9" width="16" height="7" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M7 14h10v6H7z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+            打印
+          </button>
+          <button class="btn btn--ghost btn--sm" type="button" id="copyTrip">复制文字版</button>
+        </div>
+      </div>
+      <div id="tripBody"></div>
+    </section>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div>
+        <h3>把桂中，慢慢走完。</h3>
+        <p>行程会自动存在这台设备上，下次打开还在。</p>
+      </div>
+      <div class="footer-col">
+        <h4>逛</h4>
+        <ul>
+          <li><a href="index.html">首页</a></li>
+          <li><a href="explore.html">全部目的地</a></li>
+          <li><a href="explore.html#food">味觉地图</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>提示</h4>
+        <ul>
+          <li><span>门票价为参考值</span></li>
+          <li><span>预算按人均估算</span></li>
+          <li><span>山区建议自驾或包车</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>来宾 · 桂中旅行手册 · 2026</span>
+      <span>所有估算仅供参考，请以实际消费为准</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/scenes.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/plan.js"></script>
+</body>
+</html>
